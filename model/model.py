@@ -3,9 +3,19 @@ import networkx as nx
 
 class Model:
     def __init__(self):
+        self.lista_filiali = None
+        self.dizionario_filiali = {}
         self._nodes = None
         self._edges = None
         self.G = nx.Graph()
+
+    def get_filiali(self):
+        if self.lista_filiali is None:
+            self.lista_filiali = DAO.read_all_filiali()
+        # Creo il dizionario
+        for filiale in self.lista_filiali:
+            self.dizionario_filiali[filiale.id] = filiale
+        return self.lista_filiali
 
     def costruisci_grafo(self, threshold):
         """
@@ -13,6 +23,19 @@ class Model:
         importo medio per bonifico >= threshold (euro)
         """
         # TODO
+        self.G.clear()
+        nodi = self.get_filiali()
+        for n in nodi:
+            self.G.add_node(n)
+
+        archi = DAO.read_all_edges()
+        for arco in archi:
+            num = arco["num_bonifici"]
+            if num > 0:
+                ##
+            u = self.dizionario_filiali[arco.id_filiale_origine]
+            v = self.dizionario_filiali[arco.id_filiale_destinazione]
+            self.G.add_edge(u, v)
 
     def get_num_edges(self):
         """
